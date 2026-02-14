@@ -1,0 +1,9 @@
+.idea/
+bin/
+keys/
+*.pem
+
+.terraform
+.terraform.lock.hcl
+
+
