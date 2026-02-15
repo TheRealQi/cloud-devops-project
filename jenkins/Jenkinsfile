@@ -1,9 +1,7 @@
 @Library('ci-shared-lib') _
 
 pipeline {
-	agent {
-		any
-	}
+    agent any
 	environment {
 		IMAGE_REPO = "therealqi"
 		IMAGE_NAME = "clouddevopsgradproject"
