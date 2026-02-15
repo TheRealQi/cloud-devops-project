@@ -1,0 +1,11 @@
+---
+- name: Configure Jenkins Controller Server
+  hosts: role_jenkins_controller
+  become: yes
+  remote_user: ubuntu
+
+  roles:
+    - common
+    - java
+    - docker
+    - jenkins

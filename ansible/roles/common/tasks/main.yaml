@@ -1,0 +1,10 @@
+---
+- name: Update APT Cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Common Utilities
+  apt:
+    name: "{{ packages }}"
+    state: present

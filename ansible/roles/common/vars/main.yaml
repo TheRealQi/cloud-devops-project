@@ -1,0 +1,11 @@
+---
+packages:
+  - git
+  - curl
+  - ca-certificates
+  - wget
+  - unzip
+  - software-properties-common
+  - apt-transport-https
+  - gnupg
+  - lsb-release

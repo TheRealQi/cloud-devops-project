@@ -6,4 +6,8 @@ keys/
 .terraform
 .terraform.lock.hcl
 
+pyvenv.cfg
+lib64
+lib
+
 

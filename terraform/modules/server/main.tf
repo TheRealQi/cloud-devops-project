@@ -1,16 +1,16 @@
-resource "tls_private_key" "ec2_ssh" {
+resource "tls_private_key" "jenkins_ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-resource "aws_key_pair" "ec2_ssh" {
+resource "aws_key_pair" "jenkins_ssh" {
   key_name   = var.key_name
-  public_key = tls_private_key.ec2_ssh.public_key_openssh
+  public_key = tls_private_key.jenkins_ssh.public_key_openssh
 }
 
 resource "local_file" "private_key" {
   filename        = "${path.root}/../keys/${var.key_name}.pem"
-  content         = tls_private_key.ec2_ssh.private_key_pem
+  content         = tls_private_key.jenkins_ssh.private_key_pem
   file_permission = "0600"
 }
 
@@ -39,10 +39,10 @@ resource "aws_security_group" "jenkins_sg" {
 }
 
 resource "aws_instance" "jenkins" {
-  ami           = "ami-0b6c6ebed2801a5cb"
-  instance_type = var.instance_type
-  subnet_id     = var.subnet_id
-  key_name      = var.key_name
+  ami                    = "ami-0b6c6ebed2801a5cb"
+  instance_type          = var.instance_type
+  subnet_id              = var.subnet_id
+  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   tags = {
     Name = "Jenkins-Server"

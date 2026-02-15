@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source = "./modules/network"
   vpc_cidr = "${var.vpc_cidr}"
   public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
   private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
@@ -8,7 +8,7 @@ module "vpc" {
 }
 
 module "server" {
-  source           = "./modules/ec2"
+  source           = "./modules/server"
   vpc_id           = module.vpc.vpc_id
   subnet_id        = module.vpc.public_subnets[0]
   instance_type    = "t3.micro"
