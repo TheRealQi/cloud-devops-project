@@ -8,4 +8,5 @@
     - common
     - java
     - docker
+    - trivy
     - jenkins

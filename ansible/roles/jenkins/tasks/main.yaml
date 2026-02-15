@@ -35,11 +35,18 @@
     enabled: yes
     state: started
 
+- name: Check if initial admin password exists
+  stat:
+    path: /var/lib/jenkins/secrets/initialAdminPassword
+  register: admin_pass_file
+
 - name: Get initial admin password
   command: cat /var/lib/jenkins/secrets/initialAdminPassword
   register: initial_admin_password
   changed_when: false
+  when: admin_pass_file.stat.exists
 
 - name: Output initial admin password
   debug:
     msg: "{{ initial_admin_password.stdout }}"
+  when: admin_pass_file.stat.exists

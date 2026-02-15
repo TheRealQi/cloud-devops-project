@@ -1,0 +1,25 @@
+---
+- name: Add Trivy GPG key
+  get_url:
+    url: https://aquasecurity.github.io/trivy-repo/deb/public.key
+    dest: /tmp/trivy.key
+    mode: '0644'
+
+- name: Dearmor Trivy key
+  command: gpg --dearmor -o /etc/apt/keyrings/trivy.gpg /tmp/trivy.key
+  args:
+    creates: /etc/apt/keyrings/trivy.gpg
+
+- name: Add Trivy repository to sources list
+  apt_repository:
+    repo: >
+      deb [signed-by=/etc/apt/keyrings/trivy.gpg]
+      https://aquasecurity.github.io/trivy-repo/deb generic main
+    state: present
+    filename: trivy
+
+- name: Install Trivy
+  apt:
+    name: trivy
+    state: present
+    update_cache: yes

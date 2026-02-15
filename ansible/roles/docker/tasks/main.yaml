@@ -6,14 +6,13 @@
     mode: '0644'
 
 - name: Add Docker repository to sources list
-  ansible.builtin.apt_repository:
+  apt_repository:
     repo: >
       deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }} 
       signed-by=/etc/apt/keyrings/docker.gpg] 
       https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-    filename: docker
     state: present
-    update_cache: yes
+    filename: docker
 
 - name: Install Docker Engine
   apt:
@@ -22,6 +21,7 @@
       - docker-ce-cli
       - containerd.io
     state: present
+    update_cache: yes
 
 - name: Enable Docker
   service:
