@@ -42,8 +42,11 @@ pipeline {
         }
         stage('Push Updated Manifests') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                    PushK8sManifests(K8SMANIFESTSDIR, IMAGE_TAG)
+                script {
+                    def repoUrl = scm.getUserRemoteConfigs()[0].getUrl()
+                    withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        PushK8sManifests(K8SMANIFESTSDIR, IMAGE_TAG, repoUrl, GIT_BRANCH_NAME)
+                    }
                 }
             }
         }
