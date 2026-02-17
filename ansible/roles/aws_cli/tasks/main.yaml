@@ -1,0 +1,21 @@
+- name: Check if AWS CLI is installed
+  stat:
+    path: /usr/local/bin/aws
+  register: aws_bin
+
+- name: Install AWS CLI if missing
+  when: not aws_bin.stat.exists
+  block:
+    - name: Download the AWS CLI v2 installer zip file
+      get_url:
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "/tmp/awscliv2.zip"
+
+    - name: Unzip the AWS CLI installer
+      unarchive:
+        src: "/tmp/awscliv2.zip"
+        dest: "/tmp/"
+        remote_src: true
+
+    - name: Run the AWS CLI install script
+      command: /tmp/aws/install

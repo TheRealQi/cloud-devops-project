@@ -1,0 +1,3 @@
+---
+cluster_name: "ivolve-final-project-cluster"
+aws_region: "us-east-1"

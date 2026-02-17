@@ -3,8 +3,13 @@ regions:
   - us-east-1
 filters:
   instance-state-name: running
-  "tag:Name": Jenkins-Server
+  "tag:Role": jenkins-controller
 keyed_groups:
   - key: tags.Role
     prefix: role
     separator: "_"
+hostnames:
+  - private_ip_address
+
+compose:
+  ansible_host: private_ip_address

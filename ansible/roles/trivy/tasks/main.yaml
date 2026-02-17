@@ -17,6 +17,7 @@
       https://aquasecurity.github.io/trivy-repo/deb generic main
     state: present
     filename: trivy
+    update_cache: yes
 
 - name: Install Trivy
   apt:

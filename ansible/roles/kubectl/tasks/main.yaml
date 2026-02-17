@@ -1,0 +1,49 @@
+- name: Get EKS cluster version
+  command: >
+    aws eks describe-cluster 
+    --name {{ cluster_name }} 
+    --region {{ aws_region }} 
+    --query "cluster.version" 
+    --output text
+  register: eks_version
+
+- name: Set kubectl version
+  set_fact:
+    kubectl_version: "{{ eks_version.stdout }}"
+  when: kubectl_version is not defined
+
+- name: Add Kubernetes GPG key
+  get_url:
+    url: https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key
+    dest: /tmp/kubernetes.key
+    mode: '0644'
+
+- name: Dearmor Kubernetes key
+  command: gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes.key
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Add Kubernetes repository to sources list
+  apt_repository:
+    repo: >
+      deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg]
+      https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/ /
+    state: present
+    filename: kubernetes
+    update_cache: yes
+
+- name: Install Kubectl
+  apt:
+    name:
+      - kubectl
+    state: present
+    update_cache: yes
+
+- name: Update kubeconfig for ubuntu user
+  command: >
+    aws eks update-kubeconfig
+    --name {{ cluster_name }}
+    --region {{ aws_region }}
+  become: yes
+  become_user: ubuntu
+

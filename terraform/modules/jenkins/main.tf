@@ -1,34 +1,41 @@
-resource "tls_private_key" "jenkins_ssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+resource "aws_iam_role" "jenkins_role" {
+  name = "${var.project_name}-jenkins-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
 }
 
-resource "aws_key_pair" "jenkins_ssh" {
-  key_name   = var.key_name
-  public_key = tls_private_key.jenkins_ssh.public_key_openssh
+resource "aws_iam_role_policy_attachment" "jenkins_ecr" {
+  role       = aws_iam_role.jenkins_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
-resource "local_file" "private_key" {
-  filename        = "${path.root}/../keys/${var.key_name}.pem"
-  content         = tls_private_key.jenkins_ssh.private_key_pem
-  file_permission = "0600"
+resource "aws_iam_instance_profile" "jenkins_profile" {
+  name = "${var.project_name}-jenkins-profile"
+  role = aws_iam_role.jenkins_role.name
 }
 
 resource "aws_security_group" "jenkins_sg" {
   name        = "${var.project_name}-jenkins-sg"
-  description = "Allow SSH and Jenkins traffic"
+  description = "Allow SSH Bastion host traffic"
   vpc_id      = var.vpc_id
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [var.bastion_sg_id]
   }
   ingress {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.vpc_cidr]
   }
   egress {
     from_port   = 0
@@ -39,13 +46,14 @@ resource "aws_security_group" "jenkins_sg" {
 }
 
 resource "aws_instance" "jenkins" {
-  ami                    = "ami-0b6c6ebed2801a5cb"
+  ami                    = var.ami
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.jenkins_profile.name
   tags = {
-    Name = "Jenkins-Server"
+    Name = "${var.project_name}-Jenkins-Server"
     Role = "jenkins-controller"
   }
 }

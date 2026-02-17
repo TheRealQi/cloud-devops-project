@@ -2,59 +2,81 @@
 
 pipeline {
     agent any
-	environment {
-		IMAGE_REPO = "therealqi"
-		IMAGE_NAME = "clouddevopsgradproject"
-		IMAGE_TAG = "${BUILD_NUMBER}"
-		APPDIR = "app"
-		K8SMANIFESTSDIR = "k8s"
-	}
-	stages {
-		stage('Build Docker Image') {
-			steps {
-				BuildImage(APPDIR, IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
-			}
-		}
-		stage('Scan Docker Image') {
-			steps {
-				ScanImage(IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
-			}
-		}
-		stage('Push Docker Image') {
-			steps {
-				withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-					PushImage(IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
-				}
-			}
-		}
-		stage('Remove Local Docker Image') {
-			steps {
-				RemoveImageLocally(IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
-			}
-		}
-		stage('Update K8s Manifests') {
-			steps {
-				UpdateManifest(K8SMANIFESTSDIR, IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
-			}
-		}
-		stage('Push Updated Manifests') {
-			steps {
-				withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-					PushToGit(K8SMANIFESTSDIR, IMAGE_TAG)
-				}
-			}
-		}
-	}
 
-	post {
-		always {
-			echo "Pipeline finished."
-		}
-		success {
-			echo "Pipeline succeeded!"
-		}
-		failure {
-			echo "Pipeline failed!"
-		}
-	}
+    environment {
+        AWS_REGION = "us-east-1"                     // change to your region
+        ACCOUNT_ID = "123456789012"                 // your AWS account ID
+        IMAGE_REPO = "therealqi"
+        IMAGE_NAME = "finalprojectapp"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        APPDIR = "app"
+        K8SMANIFESTSDIR = "k8s"
+        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_REPO}/${IMAGE_NAME}"
+    }
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                BuildImage(APPDIR, IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
+            }
+        }
+
+        stage('Scan Docker Image') {
+            steps {
+                ScanImage(IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
+            }
+        }
+
+        stage('Login to AWS ECR') {
+            steps {
+                script {
+                    sh """
+                        aws ecr get-login-password --region ${AWS_REGION} | \
+                        docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    """
+                }
+            }
+        }
+
+        stage('Push Docker Image to ECR') {
+            steps {
+                script {
+                    sh """
+                        docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
+                        docker push ${ECR_URI}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Remove Local Docker Image') {
+            steps {
+                RemoveImageLocally(IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
+            }
+        }
+
+        stage('Update K8s Manifests') {
+            steps {
+                UpdateManifest(K8SMANIFESTSDIR, IMAGE_REPO, IMAGE_NAME, IMAGE_TAG)
+            }
+        }
+
+        stage('Push Updated Manifests') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    PushToGit(K8SMANIFESTSDIR, IMAGE_TAG)
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo "Pipeline finished."
+        }
+        success {
+            echo "Pipeline succeeded!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+    }
 }
