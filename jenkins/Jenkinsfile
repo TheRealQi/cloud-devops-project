@@ -36,13 +36,13 @@ pipeline {
         }
         stage('Update K8s Manifests') {
             steps {
-                UpdateManifest(K8SMANIFESTSDIR, IMAGE_NAME, IMAGE_TAG)
+                UpdateK8sManifests(K8SMANIFESTSDIR, IMAGE_NAME, IMAGE_TAG)
             }
         }
         stage('Push Updated Manifests') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                    PushToGit(K8SMANIFESTSDIR, IMAGE_TAG)
+                    PushK8sManifests(K8SMANIFESTSDIR, IMAGE_TAG)
                 }
             }
         }
