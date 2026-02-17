@@ -11,6 +11,7 @@ pipeline {
         APPDIR = "app"
         K8SMANIFESTSDIR = "k8s"
         ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}"
+        GIT_BRANCH_NAME = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replace('origin/', '')}"
     }
     stages {
         stage('Build Docker Image') {
