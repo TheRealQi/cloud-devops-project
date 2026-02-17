@@ -4,8 +4,8 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "us-east-1"                     // change to your region
-        ACCOUNT_ID = "123456789012"                 // your AWS account ID
+        AWS_REGION = "us-east-1"
+        ACCOUNT_ID = credentials('aws-account-id')
         IMAGE_REPO = "therealqi"
         IMAGE_NAME = "finalprojectapp"
         IMAGE_TAG = "${BUILD_NUMBER}"
