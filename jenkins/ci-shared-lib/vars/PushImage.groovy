@@ -1,9 +1,10 @@
-def call(String imageRepo, String imageName, String imageTag, String awsAccountID, String awsRegion) {
+def call(String imageName, String imageTag, String awsAccountID, String awsRegion) {
     sh """
-        echo 'Pushing Docker image to Docker Hub'
-        aws ecr get-login-password --region ${AWS_REGION} | \
+        echo 'Pushing Docker image to ECR'
+        aws ecr get-login-password --region ${awsRegion} | \
         docker login --username AWS --password-stdin ${awsAccountID}.dkr.ecr.${awsRegion}.amazonaws.com
-        docker push ${imageRepo}/${imageName}:${imageTag}
+        docker tag ${imageName}:${imageTag} ${awsAccountID}.dkr.ecr.${awsRegion}.amazonaws.com/${imageName}:${imageTag}
+        docker push ${awsAccountID}.dkr.ecr.${awsRegion}.amazonaws.com/${imageName}:${imageTag}
         echo 'Docker image pushed successfully'
     """
 }
