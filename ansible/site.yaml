@@ -1,4 +1,4 @@
----
+#---
 #- name: Configure Bastion Host
 #  hosts: role_bastion_host
 #  become: yes
@@ -9,21 +9,14 @@
 #    - aws_cli
 #    - kubectl
 
-#- name: Configure Jenkins Controller Server
-#  hosts: role_jenkins_controller
-#  become: yes
-#  remote_user: ubuntu
-#  roles:
-#    - common
-#    - java
-#    - docker
-#    - trivy
-#    - aws_cli
-#    - jenkins
-
 - name: Configure Jenkins Controller Server
   hosts: role_jenkins_controller
   become: yes
   remote_user: ubuntu
   roles:
+    - common
+    - java
+    - docker
+    - trivy
+    - aws_cli
     - jenkins

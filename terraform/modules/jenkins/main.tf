@@ -52,6 +52,22 @@ resource "aws_instance" "jenkins" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.jenkins_profile.name
+  root_block_device {
+    volume_size           = 50
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+  user_data = <<-EOF
+              #!/bin/bash
+              SWAP_SIZE=4G
+              if [ ! -f /swapfile ]; then
+                  fallocate -l $SWAP_SIZE /swapfile
+                  chmod 600 /swapfile
+                  mkswap /swapfile
+                  swapon /swapfile
+                  echo '/swapfile swap swap defaults 0 0' >> /etc/fstab
+              fi
+              EOF
   tags = {
     Name = "${var.project_name}-Jenkins-Server"
     Role = "jenkins-controller"

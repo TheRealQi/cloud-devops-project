@@ -13,8 +13,13 @@ variable "vpc_cidr" {
   type = string
 }
 
-variable "key_name" {
-  default = "admin"
+variable "bastion_key_name" {
+  default = "bastion_admin"
+  type = string
+}
+
+variable "jenkins_key_name" {
+  default = "jenkins"
   type = string
 }
 
