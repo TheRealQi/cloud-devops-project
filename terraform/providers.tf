@@ -2,15 +2,15 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "6.32.0"
+      version = ">= 6.32.0"
     }
     local = {
       source  = "hashicorp/local"
-      version = "2.6.2"
+      version = ">= 2.6.2"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "4.2.1"
+      version = ">= 4.2.1"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -19,10 +19,6 @@ terraform {
     helm = {
       source  = "hashicorp/helm"
       version = ">= 2.17.0"
-    }
-    http = {
-      source  = "hashicorp/http"
-      version = ">= 3.4.0"
     }
   }
   backend "s3" {

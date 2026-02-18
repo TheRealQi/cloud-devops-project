@@ -80,7 +80,5 @@ module "k8s_addons" {
   cluster_name      = module.eks.cluster_name
   vpc_id            = module.vpc.vpc_id
   region            = var.aws_region
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_issuer_url   = module.eks.oidc_issuer_url
   depends_on = [module.eks]
 }
