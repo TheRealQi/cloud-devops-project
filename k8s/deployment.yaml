@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: flask-app
-          image: finalprojectapp:5
+          image: 225823723481.dkr.ecr.us-east-1.amazonaws.com/finalprojectapp:1
           resources:
             requests:
               cpu: "100m"
@@ -25,4 +25,3 @@ spec:
               memory: "256Mi"
           ports:
             - containerPort: 5000
-

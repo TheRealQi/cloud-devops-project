@@ -68,9 +68,19 @@ module "bastion" {
   source           = "./modules/bastion"
   vpc_id           = module.vpc.vpc_id
   subnet_id        = module.vpc.public_subnets[0]
-  eks_cluster_name = module.eks.eks_cluster_name
+  eks_cluster_name = module.eks.cluster_name
   instance_type    = "t3.small"
   ami              = "ami-0b6c6ebed2801a5cb"
   key_name         = aws_key_pair.bastion_generated_key.key_name
   project_name     = var.project_name
+}
+
+module "k8s_addons" {
+  source = "./modules/cluster_addons"
+  cluster_name      = module.eks.cluster_name
+  vpc_id            = module.vpc.vpc_id
+  region            = var.aws_region
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_issuer_url   = module.eks.oidc_issuer_url
+  depends_on = [module.eks]
 }
