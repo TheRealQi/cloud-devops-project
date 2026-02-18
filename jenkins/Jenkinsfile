@@ -37,7 +37,7 @@ pipeline {
         }
         stage('Update K8s Manifests') {
             steps {
-                UpdateK8sManifests(K8SMANIFESTSDIR, IMAGE_NAME, IMAGE_TAG)
+                UpdateK8sManifests(K8SMANIFESTSDIR, ECR_URI, IMAGE_TAG)
             }
         }
         stage('Push Updated Manifests') {

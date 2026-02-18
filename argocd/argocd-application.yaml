@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: clouddevops-project
+  name: ivolve-final-project
   namespace: argocd
 spec:
   project: default
@@ -11,7 +11,7 @@ spec:
     path: k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: ivolve
   syncPolicy:
     automated:
       prune: true
